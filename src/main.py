@@ -1,8 +1,8 @@
-from scraper import ParoScraper
+from scraper import OilScraper
 
-output_file = "unemployment.csv"
+output_file = "oil_prices.csv"
 
-scraper = ParoScraper()
+scraper = OilScraper()
 
 scraper.scrape()
-scraper.to_csv()
+scraper.to_csv(output_file)
