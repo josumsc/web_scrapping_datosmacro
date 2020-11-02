@@ -51,7 +51,7 @@ class OilScraper:
                 self.data[date][attr] = td.get_text().replace(',', '.').replace('$', '')
                 date = ''
 
-    def scrape(self, keywords=""):
+    def scrape(self):
         """ Scrapes the website according to the keywords provided
 
         :param keywords: Keywords to search for. If null looks into the entire site.
@@ -59,9 +59,6 @@ class OilScraper:
         """
 
         start_time = time.time()
-
-        # Modifies the url
-        #self.__keyword_modifier(keywords)
 
         for attr in self.attr:
             self.__add_attr(attr)
@@ -81,6 +78,10 @@ class OilScraper:
         """
         np_array = numpy.array(['date', 'opec', 'brent', 'wti'])
         for key in self.data.keys():
+            # Check in case we didn't retrieve any data for some attr
+            for attr in self.attr:
+                if not self.data[key].get(attr):
+                    self.data[key][attr] = '-'
             np_array = numpy.vstack(
                 (np_array, [key, self.data[key]['opec'], self.data[key]['brent'], self.data[key]['petroleo-wti']]))
 
