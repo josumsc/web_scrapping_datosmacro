@@ -10,7 +10,7 @@ class OilScraper:
         self.url = "https://datosmacro.expansion.com/materias-primas/"
         self.attr = ['opec', 'brent', 'petroleo-wti']
         self.id_table = {'opec': 'tb1_1463', 'brent': 'tb1_295', 'petroleo-wti': 'tb1_20108'}
-        self.years = list(range(2010, 2021))
+        self.years = list(range(2010, 2020))
         self.months = list(range(1, 13))
         self.year_months = [str(a) + '-' + str(b).zfill(2) for a in self.years for b in self.months]
         self.data = {}
@@ -64,10 +64,8 @@ class OilScraper:
 
         for attr in self.attr:
             for year_month in self.year_months:
-                try:
-                    self.__add_attr(attr, year_month)
-                except Exception:
-                    print(f'Finished ')
+                self.__add_attr(attr, year_month)
+
         end_time = time.time()
         total_time = end_time - start_time
 
