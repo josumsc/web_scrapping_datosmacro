@@ -52,9 +52,8 @@ class OilScraper:
                 date = ''
 
     def scrape(self):
-        """ Scrapes the website according to the keywords provided
+        """ Scrapes the website provided looking for the data
 
-        :param keywords: Keywords to search for. If null looks into the entire site.
         :return:
         """
 
