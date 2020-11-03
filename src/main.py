@@ -1,6 +1,6 @@
 from scraper import OilScraper
 
-output_file = "oil_prices.csv"
+output_file = "data/oil_prices.csv"
 
 scraper = OilScraper()
 
