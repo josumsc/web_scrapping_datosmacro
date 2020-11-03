@@ -9,13 +9,16 @@ class OilScraper:
 
     def __init__(self):
         self.url = "https://datosmacro.expansion.com/materias-primas/"
+        # Materials to which look data for
         self.attr = ['opec', 'brent', 'petroleo-wti']
+        # IDs used on the website to identify the source tables
         self.id_table = {'opec': 'tb1_1463', 'brent': 'tb1_295', 'petroleo-wti': 'tb1_20108'}
-        self.current_year_month = datetime.datetime.today().strftime('%Y-%m')
+        # Periods of time to consider in our scrapping
         self.years = list(range(2010, 2021))
         self.months = list(range(1, 13))
+        # Creates a list of year-month combinations which are before our current year-month
         self.year_months = [str(a) + '-' + str(b).zfill(2) for a in self.years for b in self.months if
-                            str(a) + '-' + str(b).zfill(2) < self.current_year_month]
+                            str(a) + '-' + str(b).zfill(2) < datetime.datetime.today().strftime('%Y-%m')]
         self.data = {}
 
     def __download_site(self, attr, year_month):
@@ -23,7 +26,7 @@ class OilScraper:
 
         :return: request object with the html of the site
         """
-        html = requests.get(self.url + attr + '?df=' + year_month)
+        html = requests.get(self.url + attr + '?dr=' + year_month)
         return html
 
     def __get_soup(self, html):
@@ -39,8 +42,9 @@ class OilScraper:
         """ Adds one of the attributes to the data set scraping the web.
 
         :param attr: Attribute to add to the data set.
+        :param year_month: Year-Month to filter our search for.
         """
-        print(f"Starting to parse the site {self.url + attr + '?df=' + year_month} ...")
+        print(f"Starting to parse the site {self.url + attr + '?dr=' + year_month} ...")
 
         html = self.__download_site(attr, year_month)
         soup = self.__get_soup(html)
