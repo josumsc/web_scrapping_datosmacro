@@ -1,23 +1,32 @@
 import time
+import datetime
 import requests
 import bs4
 import numpy
+
 
 class OilScraper:
 
     def __init__(self):
         self.url = "https://datosmacro.expansion.com/materias-primas/"
+        # Materials to which look data for
         self.attr = ['opec', 'brent', 'petroleo-wti']
+        # IDs used on the website to identify the source tables
         self.id_table = {'opec': 'tb1_1463', 'brent': 'tb1_295', 'petroleo-wti': 'tb1_20108'}
-
+        # Periods of time to consider in our scrapping
+        self.years = list(range(2000, 2021))
+        self.months = list(range(1, 13))
+        # Creates a list of year-month combinations which are before our current year-month
+        self.year_months = [str(a) + '-' + str(b).zfill(2) for a in self.years for b in self.months if
+                            str(a) + '-' + str(b).zfill(2) < datetime.datetime.today().strftime('%Y-%m')]
         self.data = {}
 
-    def __download_site(self, attr):
+    def __download_site(self, attr, year_month):
         """ Download the site provided on the self.url as a request object
 
         :return: request object with the html of the site
         """
-        html = requests.get(self.url + attr)
+        html = requests.get(self.url + attr + '?dr=' + year_month)
         return html
 
     def __get_soup(self, html):
@@ -29,14 +38,15 @@ class OilScraper:
         soup = bs4.BeautifulSoup(html.content, 'html.parser')
         return soup
 
-    def __add_attr(self, attr):
+    def __add_attr(self, attr, year_month):
         """ Adds one of the attributes to the data set scraping the web.
 
         :param attr: Attribute to add to the data set.
+        :param year_month: Year-Month to filter our search for.
         """
-        print(f"Starting to parse the site {self.url + attr} ...")
+        print(f"Starting to parse the site {self.url + attr + '?dr=' + year_month} ...")
 
-        html = self.__download_site(attr)
+        html = self.__download_site(attr, year_month)
         soup = self.__get_soup(html)
 
         tds = soup.find(id=self.id_table[attr])
@@ -52,18 +62,16 @@ class OilScraper:
                 date = ''
 
     def scrape(self):
-        """ Scrapes the website according to the keywords provided
+        """ Scrapes the website provided looking for the data
 
-        :param keywords: Keywords to search for. If null looks into the entire site.
-        :return:
+        :return: None
         """
 
         start_time = time.time()
 
         for attr in self.attr:
-            self.__add_attr(attr)
-
-        print(self.data)
+            for year_month in self.year_months:
+                self.__add_attr(attr, year_month)
 
         end_time = time.time()
         total_time = end_time - start_time
@@ -85,4 +93,7 @@ class OilScraper:
             np_array = numpy.vstack(
                 (np_array, [key, self.data[key]['opec'], self.data[key]['brent'], self.data[key]['petroleo-wti']]))
 
-        numpy.savetxt(filename, np_array, delimiter=",", fmt='%s')
+            # Sorting array by date_column
+            sorted_array = np_array[numpy.argsort(np_array[:, 0])]
+
+        numpy.savetxt(filename, sorted_array, delimiter=",", fmt='%s')
