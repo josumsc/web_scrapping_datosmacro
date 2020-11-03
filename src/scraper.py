@@ -14,7 +14,7 @@ class OilScraper:
         # IDs used on the website to identify the source tables
         self.id_table = {'opec': 'tb1_1463', 'brent': 'tb1_295', 'petroleo-wti': 'tb1_20108'}
         # Periods of time to consider in our scrapping
-        self.years = list(range(2010, 2021))
+        self.years = list(range(2003, 2021))
         self.months = list(range(1, 13))
         # Creates a list of year-month combinations which are before our current year-month
         self.year_months = [str(a) + '-' + str(b).zfill(2) for a in self.years for b in self.months if
