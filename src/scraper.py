@@ -1,4 +1,5 @@
 import time
+import datetime
 import requests
 import bs4
 import numpy
@@ -10,9 +11,11 @@ class OilScraper:
         self.url = "https://datosmacro.expansion.com/materias-primas/"
         self.attr = ['opec', 'brent', 'petroleo-wti']
         self.id_table = {'opec': 'tb1_1463', 'brent': 'tb1_295', 'petroleo-wti': 'tb1_20108'}
-        self.years = list(range(2010, 2020))
+        self.current_year_month = datetime.datetime.today().strftime('%Y-%m')
+        self.years = list(range(2010, 2021))
         self.months = list(range(1, 13))
-        self.year_months = [str(a) + '-' + str(b).zfill(2) for a in self.years for b in self.months]
+        self.year_months = [str(a) + '-' + str(b).zfill(2) for a in self.years for b in self.months if
+                            str(a) + '-' + str(b).zfill(2) < self.current_year_month]
         self.data = {}
 
     def __download_site(self, attr, year_month):
