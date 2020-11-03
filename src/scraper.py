@@ -10,17 +10,17 @@ class OilScraper:
         self.url = "https://datosmacro.expansion.com/materias-primas/"
         self.attr = ['opec', 'brent', 'petroleo-wti']
         self.id_table = {'opec': 'tb1_1463', 'brent': 'tb1_295', 'petroleo-wti': 'tb1_20108'}
-        self.years = list(range(2010, 2020))
+        self.years = list(range(2010, 2021))
         self.months = list(range(1, 13))
         self.year_months = [str(a) + '-' + str(b).zfill(2) for a in self.years for b in self.months]
         self.data = {}
 
-    def __download_site(self, attr):
+    def __download_site(self, attr, year_month):
         """ Download the site provided on the self.url as a request object
 
         :return: request object with the html of the site
         """
-        html = requests.get(self.url + attr)
+        html = requests.get(self.url + attr + '?df=' + year_month)
         return html
 
     def __get_soup(self, html):
@@ -32,14 +32,14 @@ class OilScraper:
         soup = bs4.BeautifulSoup(html.content, 'html.parser')
         return soup
 
-    def __add_attr(self, attr):
+    def __add_attr(self, attr, year_month):
         """ Adds one of the attributes to the data set scraping the web.
 
         :param attr: Attribute to add to the data set.
         """
-        print(f"Starting to parse the site {self.url + attr} ...")
+        print(f"Starting to parse the site {self.url + attr + '?df=' + year_month} ...")
 
-        html = self.__download_site(attr)
+        html = self.__download_site(attr, year_month)
         soup = self.__get_soup(html)
 
         tds = soup.find(id=self.id_table[attr])
@@ -63,8 +63,11 @@ class OilScraper:
         start_time = time.time()
 
         for attr in self.attr:
-            self.__add_attr(attr)
-
+            for year_month in self.year_months:
+                try:
+                    self.__add_attr(attr, year_month)
+                except Exception:
+                    print(f'Finished ')
         end_time = time.time()
         total_time = end_time - start_time
 
