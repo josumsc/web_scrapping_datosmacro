@@ -3,13 +3,16 @@ import requests
 import bs4
 import numpy
 
+
 class OilScraper:
 
     def __init__(self):
         self.url = "https://datosmacro.expansion.com/materias-primas/"
         self.attr = ['opec', 'brent', 'petroleo-wti']
         self.id_table = {'opec': 'tb1_1463', 'brent': 'tb1_295', 'petroleo-wti': 'tb1_20108'}
-
+        self.years = list(range(2010, 2020))
+        self.months = list(range(1, 13))
+        self.year_months = [str(a) + '-' + str(b).zfill(2) for a in self.years for b in self.months]
         self.data = {}
 
     def __download_site(self, attr):
@@ -54,15 +57,13 @@ class OilScraper:
     def scrape(self):
         """ Scrapes the website provided looking for the data
 
-        :return:
+        :return: None
         """
 
         start_time = time.time()
 
         for attr in self.attr:
             self.__add_attr(attr)
-
-        print(self.data)
 
         end_time = time.time()
         total_time = end_time - start_time
