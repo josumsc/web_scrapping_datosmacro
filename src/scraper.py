@@ -20,6 +20,7 @@ class OilScraper:
         self.year_months = [str(a) + '-' + str(b).zfill(2) for a in self.years for b in self.months if
                             str(a) + '-' + str(b).zfill(2) < datetime.datetime.today().strftime('%Y-%m')]
         self.data = {}
+        self.array = None
 
     def __download_site(self, attr, year_month):
         """ Download the site provided on the self.url as a request object
@@ -61,6 +62,34 @@ class OilScraper:
                 self.data[date][attr] = td.get_text().replace(',', '.').replace('$', '')
                 date = ''
 
+    def __get_array(self):
+        """ Gets an array from the data stored in self.data and stores it in self.array
+
+        :return: None
+        """
+        np_array = numpy.array(['date', 'opec', 'brent', 'wti'])
+        for key in self.data.keys():
+            # Check in case we didn't retrieve any data for some attr
+            for attr in self.attr:
+                if not self.data[key].get(attr):
+                    self.data[key][attr] = '-'
+            np_array = numpy.vstack(
+                (np_array, [key, self.data[key]['opec'], self.data[key]['brent'], self.data[key]['petroleo-wti']]))
+
+            # Sorting array by date_column
+            sorted_array = np_array[numpy.argsort(np_array[:, 0])][::-1]
+        self.array = sorted_array
+
+    def __clean_array(self):
+        """ Cleans our array according to NA treatment and date filters
+
+        :return: None
+        """
+        # Imputing '-' as an empty value
+        self.array = numpy.where(self.array == '-', '', self.array)
+        # Leaving only data from the 2000s
+        self.array = self.array[numpy.where(self.array[:, 0] >= '2000')]
+
     def scrape(self):
         """ Scrapes the website provided looking for the data
 
@@ -84,16 +113,6 @@ class OilScraper:
         :param filename: Filename to save the file, including the .csv
         :return: None
         """
-        np_array = numpy.array(['date', 'opec', 'brent', 'wti'])
-        for key in self.data.keys():
-            # Check in case we didn't retrieve any data for some attr
-            for attr in self.attr:
-                if not self.data[key].get(attr):
-                    self.data[key][attr] = '-'
-            np_array = numpy.vstack(
-                (np_array, [key, self.data[key]['opec'], self.data[key]['brent'], self.data[key]['petroleo-wti']]))
-
-            # Sorting array by date_column
-            sorted_array = np_array[numpy.argsort(np_array[:, 0])]
-
-        numpy.savetxt(filename, sorted_array, delimiter=",", fmt='%s')
+        self.__get_array()
+        self.__clean_array()
+        numpy.savetxt(filename, self.array, delimiter=",", fmt='%s')
