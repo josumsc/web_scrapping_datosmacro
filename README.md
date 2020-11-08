@@ -1,2 +1,2 @@
 # web_scrapping_datosmacro
-Extract unemployment rates from the site https://datosmacro.expansion.com/paro
+Extract oil prices from the site https://datosmacro.expansion.com/
